@@ -15,13 +15,13 @@ Add the server to your MCP client configuration:
   "mcpServers": {
     "yahoo-finance": {
       "command": "npx",
-      "args": ["-y", "github:USER/mcp-yahoo-finance"]
+      "args": ["-y", "github:cmaurer/mcp-yahoo-finance"]
     }
   }
 }
 ```
 
-Replace `USER` with your GitHub username/org once the repo is pushed (so the argument reads e.g. `github:your-name/mcp-yahoo-finance`).
+`npx` resolves `github:cmaurer/mcp-yahoo-finance` to this repository's default branch. If you fork it, point the argument at your own `owner/repo` instead.
 
 `npx` fetches the repository straight from GitHub. On first fetch it runs the package's `prepare` script, which invokes `npm run build` (`tsc`) to compile the TypeScript in `src/` to `dist/`. The client then launches the compiled entry point (`dist/index.js`) over stdio. No separate publish step or npm registry entry is required.
 
@@ -44,7 +44,7 @@ rm -rf ~/.npm/_npx
 ## Local development
 
 ```bash
-git clone https://github.com/USER/mcp-yahoo-finance
+git clone https://github.com/cmaurer/mcp-yahoo-finance
 cd mcp-yahoo-finance
 npm install
 npm run build
