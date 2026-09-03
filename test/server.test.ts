@@ -60,4 +60,16 @@ describe("buildServer", () => {
     expect(errSpy).toHaveBeenCalled();
     errSpy.mockRestore();
   });
+
+  it("registers the real tool modules", async () => {
+    const { TOOL_MODULES } = await import("../src/tools/index.js");
+    const server = buildServer(TOOL_MODULES);
+    expect(Object.keys(registry(server))).toEqual(
+      expect.arrayContaining([
+        "get_stock_info",
+        "get_multiple_quotes",
+        "get_analyst_price_targets",
+      ]),
+    );
+  });
 });

@@ -1,4 +1,7 @@
 import type { ToolModule } from "../types.js";
+import { getStockInfo } from "./getStockInfo.js";
+import { getMultipleQuotes } from "./getMultipleQuotes.js";
+import { getAnalystPriceTargets } from "./getAnalystPriceTargets.js";
 
 // Ruling A: concrete `ToolModule<{ symbol: ... }>` values that later tasks push
 // here are not assignable to `ToolModule<z.ZodRawShape>` because of
@@ -7,4 +10,8 @@ import type { ToolModule } from "../types.js";
 // gives tool authors full input-type inference at the call site, and
 // `buildServer` casts when invoking the handler so runtime is unchanged.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const TOOL_MODULES: ToolModule<any>[] = [];
+export const TOOL_MODULES: ToolModule<any>[] = [
+  getStockInfo,
+  getMultipleQuotes,
+  getAnalystPriceTargets,
+];
