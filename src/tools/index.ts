@@ -11,6 +11,8 @@ import { searchStocks } from "./searchStocks.js";
 import { getNews } from "./getNews.js";
 import { getRecommendations } from "./getRecommendations.js";
 import { getTrendingSymbols } from "./getTrendingSymbols.js";
+import { getOptionsChain } from "./getOptionsChain.js";
+import { getHolders } from "./getHolders.js";
 
 // Ruling A: concrete `ToolModule<{ symbol: ... }>` values that later tasks push
 // here are not assignable to `ToolModule<z.ZodRawShape>` because of
@@ -32,4 +34,6 @@ export const TOOL_MODULES: ToolModule<any>[] = [
   getNews,
   getRecommendations,
   getTrendingSymbols,
+  getOptionsChain,
+  getHolders,
 ];

@@ -72,4 +72,26 @@ describe("buildServer", () => {
       ]),
     );
   });
+
+  it("registers all 14 tools", async () => {
+    const { TOOL_MODULES } = await import("../src/tools/index.js");
+    expect(TOOL_MODULES).toHaveLength(14);
+    const server = buildServer(TOOL_MODULES);
+    expect(Object.keys(registry(server)).sort()).toEqual([
+      "get_analyst_price_targets",
+      "get_dividends",
+      "get_earnings",
+      "get_financials",
+      "get_historical_data",
+      "get_holders",
+      "get_multiple_quotes",
+      "get_news",
+      "get_options_chain",
+      "get_recommendations",
+      "get_splits",
+      "get_stock_info",
+      "get_trending_symbols",
+      "search_stocks",
+    ]);
+  });
 });
