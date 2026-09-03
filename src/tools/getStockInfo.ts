@@ -12,13 +12,11 @@ export const getStockInfo = defineTool({
   inputSchema: { symbol: z.string().describe("Ticker symbol, e.g. AAPL") },
   handler: async ({ symbol }) => {
     try {
-      // yf.quote / yf.quoteSummary are typed `any` / `unknown` (validateResult:false
-      // overloads); the raw payloads resemble Quote / QuoteSummaryResult.
-      const [q, s] = (await Promise.all([
+      // Raw payloads resemble Quote / QuoteSummaryResult (typed `any` by the wrapper).
+      const [q, s] = await Promise.all([
         yf.quote(symbol),
         yf.quoteSummary(symbol, MODULES),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ])) as [any, any];
+      ]);
       const sd = s?.summaryDetail ?? {};
       const ap = s?.assetProfile ?? {};
       return {

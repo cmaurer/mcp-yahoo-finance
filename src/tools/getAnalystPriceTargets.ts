@@ -10,10 +10,8 @@ export const getAnalystPriceTargets = defineTool({
   inputSchema: { symbol: z.string().describe("Ticker symbol") },
   handler: async ({ symbol }) => {
     try {
-      // yf.quoteSummary is typed `unknown` (validateResult:false overload); the
-      // raw payload resembles QuoteSummaryResult.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const s = (await yf.quoteSummary(symbol, ["financialData"])) as any;
+      // Raw payload resembles QuoteSummaryResult (typed `any` by the wrapper).
+      const s = await yf.quoteSummary(symbol, ["financialData"]);
       const f = s?.financialData ?? {};
       return {
         symbol,

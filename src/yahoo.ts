@@ -1,23 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import YahooFinance from "yahoo-finance2";
 
 const instance = new YahooFinance({ suppressNotices: ["yahooSurvey"] });
 const OPTS = { validateResult: false } as const;
 
+// Return values are typed `any` deliberately: yahoo-finance2's own result types
+// are large, and each tool narrows what it reads. This wrapper is the single
+// boundary where the untyped Yahoo payloads enter the codebase.
 export const yf = {
-  quote: (symbols: string | string[]) => instance.quote(symbols as never, {}, OPTS),
-  quoteSummary: (symbol: string, modules: string[]) =>
+  quote: (symbols: string | string[]): Promise<any> => instance.quote(symbols as never, {}, OPTS),
+  quoteSummary: (symbol: string, modules: string[]): Promise<any> =>
     instance.quoteSummary(symbol, { modules } as never, OPTS),
   chart: (
     symbol: string,
     opts: { period1: Date; period2?: Date; interval?: string; events?: string },
-  ) => instance.chart(symbol, opts as never, OPTS),
-  search: (query: string, opts: Record<string, unknown> = {}) =>
+  ): Promise<any> => instance.chart(symbol, opts as never, OPTS),
+  search: (query: string, opts: Record<string, unknown> = {}): Promise<any> =>
     instance.search(query, opts as never, OPTS),
-  recommendationsBySymbol: (symbol: string) =>
+  recommendationsBySymbol: (symbol: string): Promise<any> =>
     instance.recommendationsBySymbol(symbol as never, {}, OPTS),
-  trendingSymbols: (region: string, opts: Record<string, unknown> = {}) =>
+  trendingSymbols: (region: string, opts: Record<string, unknown> = {}): Promise<any> =>
     instance.trendingSymbols(region as never, opts as never, OPTS),
-  options: (symbol: string, opts: Record<string, unknown> = {}) =>
+  options: (symbol: string, opts: Record<string, unknown> = {}): Promise<any> =>
     instance.options(symbol, opts as never, OPTS),
 };
 
