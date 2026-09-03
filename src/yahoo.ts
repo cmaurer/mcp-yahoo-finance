@@ -1,7 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import YahooFinance from "yahoo-finance2";
 
-const instance = new YahooFinance({ suppressNotices: ["yahooSurvey"] });
+// yahoo-finance2's default logger routes info/dir to stdout (console.log), which
+// would corrupt the stdio JSON-RPC stream. Force every channel to stderr.
+const stderrLogger = {
+  info: (...a: unknown[]) => console.error(...a),
+  warn: (...a: unknown[]) => console.error(...a),
+  error: (...a: unknown[]) => console.error(...a),
+  dir: (...a: unknown[]) => console.error(...a),
+  debug: () => {},
+};
+
+const instance = new YahooFinance({ suppressNotices: ["yahooSurvey"], logger: stderrLogger });
 const OPTS = { validateResult: false } as const;
 
 // Return values are typed `any` deliberately: yahoo-finance2's own result types
@@ -17,8 +26,6 @@ export const yf = {
   ): Promise<any> => instance.chart(symbol, opts as never, OPTS),
   search: (query: string, opts: Record<string, unknown> = {}): Promise<any> =>
     instance.search(query, opts as never, OPTS),
-  recommendationsBySymbol: (symbol: string): Promise<any> =>
-    instance.recommendationsBySymbol(symbol as never, {}, OPTS),
   trendingSymbols: (region: string, opts: Record<string, unknown> = {}): Promise<any> =>
     instance.trendingSymbols(region as never, opts as never, OPTS),
   options: (symbol: string, opts: Record<string, unknown> = {}): Promise<any> =>

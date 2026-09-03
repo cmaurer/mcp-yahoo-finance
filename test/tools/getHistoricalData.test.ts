@@ -39,9 +39,10 @@ describe("get_historical_data", () => {
     expect(parsed).toBeDefined();
   });
 
-  it("returns a structured not-found error", async () => {
+  it("lets a not-found error propagate to the boundary", async () => {
     vi.spyOn(yf, "chart").mockRejectedValue(new Error("No data found, symbol may be delisted"));
-    const out = await getHistoricalData.handler({ symbol: "ZZZZ", period: "1mo", interval: "1d" });
-    expect(out).toEqual({ error: "symbol not found", symbol: "ZZZZ" });
+    await expect(
+      getHistoricalData.handler({ symbol: "ZZZZ", period: "1mo", interval: "1d" }),
+    ).rejects.toThrow(/no data found/i);
   });
 });

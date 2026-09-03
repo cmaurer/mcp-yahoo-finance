@@ -46,13 +46,3 @@ export function round(n: unknown, dp = 2): number | null {
   const f = 10 ** dp;
   return Math.round(n * f) / f;
 }
-
-export function pick<T extends object, K extends keyof T>(
-  obj: T | null | undefined,
-  keys: K[],
-): Pick<T, K> {
-  const out = {} as Pick<T, K>;
-  if (!obj) return out;
-  for (const k of keys) if (k in obj && obj[k] !== undefined) out[k] = obj[k];
-  return out;
-}

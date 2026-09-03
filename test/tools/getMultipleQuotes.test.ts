@@ -21,6 +21,17 @@ describe("get_multiple_quotes", () => {
     expect(out.errors).toEqual({});
   });
 
+  it("matches symbols case-insensitively against Yahoo's upper-cased response", async () => {
+    vi.spyOn(yf, "quote").mockResolvedValue([
+      { symbol: "AAPL", regularMarketPrice: 231, currency: "USD", marketState: "REGULAR" },
+    ]);
+    const out = (await getMultipleQuotes.handler({ symbols: ["aapl"] })) as {
+      quotes: Record<string, { price: number }>; errors: Record<string, string>;
+    };
+    expect(out.quotes.aapl!.price).toBe(231);
+    expect(out.errors).toEqual({});
+  });
+
   it("records symbols missing from the response under errors", async () => {
     vi.spyOn(yf, "quote").mockResolvedValue([
       { symbol: "AAPL", regularMarketPrice: 231, currency: "USD", marketState: "REGULAR" },

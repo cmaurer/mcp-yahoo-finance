@@ -9,7 +9,6 @@ export const getMultipleQuotes = defineTool({
   description: "Batch current-quote lookup for several tickers.",
   inputSchema: { symbols: z.array(z.string()).min(1).describe("Ticker symbols") },
   handler: async ({ symbols }) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let rows: any[];
     try {
       const res = await yf.quote(symbols);
@@ -17,12 +16,14 @@ export const getMultipleQuotes = defineTool({
     } catch (err) {
       return { error: err instanceof Error ? err.message : String(err) };
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const bySymbol = new Map<string, any>(rows.filter(Boolean).map((r) => [r.symbol, r]));
+    // Yahoo upper-cases symbols in its response, so match case-insensitively.
+    const bySymbol = new Map<string, any>(
+      rows.filter(Boolean).map((r) => [String(r.symbol).toUpperCase(), r]),
+    );
     const quotes: Record<string, unknown> = {};
     const errors: Record<string, string> = {};
     for (const sym of symbols) {
-      const r = bySymbol.get(sym);
+      const r = bySymbol.get(sym.toUpperCase());
       if (!r) {
         errors[sym] = "no quote returned";
         continue;

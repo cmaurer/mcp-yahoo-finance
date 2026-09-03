@@ -39,9 +39,10 @@ describe("get_financials", () => {
     expect(out.incomeStatement).toEqual([]);
   });
 
-  it("returns a structured not-found error", async () => {
+  it("lets a not-found error propagate to the boundary", async () => {
     vi.spyOn(yf, "quoteSummary").mockRejectedValue(new Error("Quote not found"));
-    const out = await getFinancials.handler({ symbol: "ZZZZ", quarterly: false });
-    expect(out).toEqual({ error: "symbol not found", symbol: "ZZZZ" });
+    await expect(getFinancials.handler({ symbol: "ZZZZ", quarterly: false })).rejects.toThrow(
+      /not found/i,
+    );
   });
 });

@@ -21,6 +21,16 @@ const boom = defineTool({
   },
 });
 
+const notFoundBoom = defineTool({
+  name: "throws_not_found",
+  title: "Not found boom",
+  description: "throws a not-found error",
+  inputSchema: { symbol: z.string() },
+  handler: async () => {
+    throw new Error("Quote not found for ZZZZ");
+  },
+});
+
 // McpServer@1.30 keeps registered tools on the private `_registeredTools`
 // record; each entry stores the raw callback on `.handler` (the brief's
 // `.callback` name is used for prompts, not tools, in this SDK version).
@@ -49,6 +59,7 @@ describe("buildServer", () => {
     const res = await callTool(server, "echo_ok", { value: "hi" });
     expect(res.isError).toBeFalsy();
     expect(JSON.parse(res.content[0]!.text)).toEqual({ echoed: "hi" });
+    expect(res.content[0]!.text).toContain("\n  ");
   });
 
   it("converts a thrown error into isError content without escaping", async () => {
@@ -58,6 +69,15 @@ describe("buildServer", () => {
     expect(res.isError).toBe(true);
     expect(JSON.parse(res.content[0]!.text)).toEqual({ error: "kaboom" });
     expect(errSpy).toHaveBeenCalled();
+    errSpy.mockRestore();
+  });
+
+  it("maps a thrown not-found error to the spec's isError not-found contract", async () => {
+    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const server = buildServer([notFoundBoom]);
+    const res = await callTool(server, "throws_not_found", { symbol: "ZZZZ" });
+    expect(res.isError).toBe(true);
+    expect(JSON.parse(res.content[0]!.text)).toEqual({ error: "symbol not found", symbol: "ZZZZ" });
     errSpy.mockRestore();
   });
 

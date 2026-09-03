@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { periodToRange, toISODate, toISODateTime, round, pick, PERIODS, INTERVALS } from "../src/format.js";
+import { periodToRange, toISODate, toISODateTime, round, PERIODS, INTERVALS } from "../src/format.js";
 
 describe("periodToRange", () => {
   const now = new Date("2026-09-02T12:00:00Z");
@@ -42,15 +42,6 @@ describe("round", () => {
     expect(round(NaN)).toBeNull();
     expect(round("x")).toBeNull();
     expect(round(undefined)).toBeNull();
-  });
-});
-
-describe("pick", () => {
-  it("selects present keys and ignores missing", () => {
-    expect(pick({ a: 1, b: 2, c: 3 }, ["a", "c", "z" as "a"])).toEqual({ a: 1, c: 3 });
-  });
-  it("returns {} for nullish input", () => {
-    expect(pick(null, ["a" as never])).toEqual({});
   });
 });
 

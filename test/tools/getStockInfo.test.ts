@@ -33,10 +33,9 @@ describe("get_stock_info", () => {
     expect(yf.quoteSummary).toHaveBeenCalledWith("AAPL", expect.arrayContaining(["assetProfile", "summaryDetail", "price"]));
   });
 
-  it("returns a structured not-found error", async () => {
+  it("lets a not-found error propagate to the boundary", async () => {
     vi.spyOn(yf, "quote").mockRejectedValue(new Error("Quote not found for ticker symbol: ZZZZ"));
     vi.spyOn(yf, "quoteSummary").mockRejectedValue(new Error("Quote not found"));
-    const out = await getStockInfo.handler({ symbol: "ZZZZ" });
-    expect(out).toEqual({ error: "symbol not found", symbol: "ZZZZ" });
+    await expect(getStockInfo.handler({ symbol: "ZZZZ" })).rejects.toThrow(/not found/i);
   });
 });

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { defineTool } from "../types.js";
-import { yf, isNotFound } from "../yahoo.js";
+import { yf } from "../yahoo.js";
 import { round } from "../format.js";
 
 export const getAnalystPriceTargets = defineTool({
@@ -9,24 +9,19 @@ export const getAnalystPriceTargets = defineTool({
   description: "Wall Street price targets and consensus rating for a ticker.",
   inputSchema: { symbol: z.string().describe("Ticker symbol") },
   handler: async ({ symbol }) => {
-    try {
-      // Raw payload resembles QuoteSummaryResult (typed `any` by the wrapper).
-      const s = await yf.quoteSummary(symbol, ["financialData"]);
-      const f = s?.financialData ?? {};
-      return {
-        symbol,
-        current: round(f.currentPrice) ?? null,
-        targetMean: round(f.targetMeanPrice) ?? null,
-        targetHigh: round(f.targetHighPrice) ?? null,
-        targetLow: round(f.targetLowPrice) ?? null,
-        targetMedian: round(f.targetMedianPrice) ?? null,
-        numberOfAnalysts: f.numberOfAnalystOpinions ?? null,
-        recommendationKey: f.recommendationKey ?? null,
-        recommendationMean: round(f.recommendationMean) ?? null,
-      };
-    } catch (err) {
-      if (isNotFound(err)) return { error: "symbol not found", symbol };
-      throw err;
-    }
+    // Raw payload resembles QuoteSummaryResult (typed `any` by the wrapper).
+    const s = await yf.quoteSummary(symbol, ["financialData"]);
+    const f = s?.financialData ?? {};
+    return {
+      symbol,
+      current: round(f.currentPrice) ?? null,
+      targetMean: round(f.targetMeanPrice) ?? null,
+      targetHigh: round(f.targetHighPrice) ?? null,
+      targetLow: round(f.targetLowPrice) ?? null,
+      targetMedian: round(f.targetMedianPrice) ?? null,
+      numberOfAnalysts: f.numberOfAnalystOpinions ?? null,
+      recommendationKey: f.recommendationKey ?? null,
+      recommendationMean: round(f.recommendationMean) ?? null,
+    };
   },
 });

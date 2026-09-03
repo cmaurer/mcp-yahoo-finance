@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { defineTool } from "../types.js";
-import { yf, isNotFound } from "../yahoo.js";
+import { yf } from "../yahoo.js";
 import { toISODate, round } from "../format.js";
 
 function contract(c: any, expiration: string | null) {
@@ -27,24 +27,19 @@ export const getOptionsChain = defineTool({
     date: z.string().optional().describe("Expiration date (YYYY-MM-DD); omit for nearest"),
   },
   handler: async ({ symbol, date }) => {
-    try {
-      const query = date ? { date: new Date(`${date}T00:00:00Z`) } : {};
-      const res = await yf.options(symbol, query);
-      const expirationDates: (string | null)[] = (res?.expirationDates ?? []).map((d: any) =>
-        toISODate(d),
-      );
-      const chain = res?.options?.[0] ?? {};
-      const selectedExpiration = toISODate(chain.expirationDate) ?? expirationDates[0] ?? null;
-      return {
-        symbol,
-        expirationDates,
-        selectedExpiration,
-        calls: (chain.calls ?? []).map((c: any) => contract(c, selectedExpiration)),
-        puts: (chain.puts ?? []).map((p: any) => contract(p, selectedExpiration)),
-      };
-    } catch (err) {
-      if (isNotFound(err)) return { error: "symbol not found", symbol };
-      throw err;
-    }
+    const query = date ? { date: new Date(`${date}T00:00:00Z`) } : {};
+    const res = await yf.options(symbol, query);
+    const expirationDates: (string | null)[] = (res?.expirationDates ?? []).map((d: any) =>
+      toISODate(d),
+    );
+    const chain = res?.options?.[0] ?? {};
+    const selectedExpiration = toISODate(chain.expirationDate) ?? expirationDates[0] ?? null;
+    return {
+      symbol,
+      expirationDates,
+      selectedExpiration,
+      calls: (chain.calls ?? []).map((c: any) => contract(c, selectedExpiration)),
+      puts: (chain.puts ?? []).map((p: any) => contract(p, selectedExpiration)),
+    };
   },
 });

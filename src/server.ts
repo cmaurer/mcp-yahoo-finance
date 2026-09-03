@@ -10,7 +10,6 @@ function textResult(value: unknown, isError = false) {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function buildServer(modules: ToolModule<any>[] = TOOL_MODULES): McpServer {
   const server = new McpServer({ name: "mcp-yahoo-finance", version: "0.1.0" });
 
@@ -18,8 +17,10 @@ export function buildServer(modules: ToolModule<any>[] = TOOL_MODULES): McpServe
   // first registerTool call, so an empty registry would answer tools/list with
   // "Method not found". Force them on now; the call is idempotent (guarded by
   // the SDK's own _toolHandlersInitialized flag) so later registerTool calls are
-  // unaffected.
-  (server as unknown as { setToolRequestHandlers(): void }).setToolRequestHandlers();
+  // unaffected. Guarded so a future SDK that renames it degrades to a no-op
+  // instead of a TypeError at startup.
+  const s = server as unknown as { setToolRequestHandlers?: () => void };
+  if (typeof s.setToolRequestHandlers === "function") s.setToolRequestHandlers();
 
   for (const mod of modules) {
     server.registerTool(
@@ -30,7 +31,9 @@ export function buildServer(modules: ToolModule<any>[] = TOOL_MODULES): McpServe
           return textResult(await mod.handler(args as never));
         } catch (err) {
           console.error(`[${mod.name}]`, err);
-          return textResult(normalizeError(err), true);
+          const symbol = (args as { symbol?: unknown })?.symbol;
+          const sym = typeof symbol === "string" ? symbol : undefined;
+          return textResult(normalizeError(err, sym), true);
         }
       },
     );
