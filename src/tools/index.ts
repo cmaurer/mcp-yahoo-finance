@@ -7,6 +7,10 @@ import { getDividends } from "./getDividends.js";
 import { getSplits } from "./getSplits.js";
 import { getFinancials } from "./getFinancials.js";
 import { getEarnings } from "./getEarnings.js";
+import { searchStocks } from "./searchStocks.js";
+import { getNews } from "./getNews.js";
+import { getRecommendations } from "./getRecommendations.js";
+import { getTrendingSymbols } from "./getTrendingSymbols.js";
 
 // Ruling A: concrete `ToolModule<{ symbol: ... }>` values that later tasks push
 // here are not assignable to `ToolModule<z.ZodRawShape>` because of
@@ -24,4 +28,8 @@ export const TOOL_MODULES: ToolModule<any>[] = [
   getSplits,
   getFinancials,
   getEarnings,
+  searchStocks,
+  getNews,
+  getRecommendations,
+  getTrendingSymbols,
 ];
