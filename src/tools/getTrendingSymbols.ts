@@ -13,12 +13,35 @@ export const getTrendingSymbols = defineTool({
   },
   handler: async ({ region, count }) => {
     const res = await yf.trendingSymbols(region, { count });
-    const quotes = (res?.quotes ?? []).slice(0, count).map((q: any) => ({
-      symbol: q.symbol,
-      shortName: q.shortName ?? q.longName ?? null,
-      price: round(q.regularMarketPrice),
-      changePercent: round(q.regularMarketChangePercent),
-    }));
+    // yahoo-finance2 v4 returns symbol-only rows here: { quotes: [{ symbol }] }.
+    const symbols: string[] = ((res?.quotes ?? []) as any[])
+      .map((q) => q?.symbol)
+      .filter((s): s is string => typeof s === "string" && s.length > 0)
+      .slice(0, count);
+
+    // Best-effort enrichment: one batched quote call for name + price fields.
+    const bySymbol = new Map<string, any>();
+    if (symbols.length > 0) {
+      try {
+        const rows = await yf.quote(symbols);
+        for (const r of (Array.isArray(rows) ? rows : [rows]) as any[]) {
+          if (r?.symbol) bySymbol.set(r.symbol, r);
+        }
+      } catch {
+        // Enrichment failed — fall back to bare symbols with null fields.
+      }
+    }
+
+    const quotes = symbols.map((symbol) => {
+      const q = bySymbol.get(symbol);
+      return {
+        symbol,
+        shortName: q?.longName ?? q?.shortName ?? null,
+        price: round(q?.regularMarketPrice),
+        changePercent: round(q?.regularMarketChangePercent),
+      };
+    });
+
     return { region, quotes };
   },
 });
